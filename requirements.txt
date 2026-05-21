@@ -1,0 +1,6 @@
+transformers==5.7.0
+sentencepiece
+torch 
+python-dotenv
+simalign
+protobuf
