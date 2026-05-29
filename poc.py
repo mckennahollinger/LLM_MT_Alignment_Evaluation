@@ -39,12 +39,14 @@ with open(target_file_path, "r") as target:
     for line in target:
         target_tokens.append(target_tokenizer.tokenize(line))
 
-print(source_tokens)
-print(target_tokens)
+# Initialize list to append SimAlign Itermax algorithm results to 
+alignments = []
 
-# Align source and target texts
-alignments = aligner.get_word_aligns(source_tokens, target_tokens)
+# Align source and target lines of text 
+for line in range(len(source_tokens)):
+    alignments.append(aligner.get_word_aligns(source_tokens[line], target_tokens[line]))
 
-# Print alignment results
-for s,t in alignments["itermax"]:
-  print(f"{source_tokenizer[s]} ({s}) === {target_tokenizer[t]} ({t})")
+# Print results of which words in each text have been aligned with each other
+for line, aligned in enumerate(alignments):
+    for pair in aligned["itermax"]:
+        print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {target_tokens[line][pair[1]]} ({pair[1]})")

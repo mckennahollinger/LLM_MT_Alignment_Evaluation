@@ -4,3 +4,4 @@ torch
 python-dotenv
 simalign
 protobuf
+uv
