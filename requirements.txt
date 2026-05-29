@@ -5,3 +5,4 @@ python-dotenv
 simalign
 protobuf
 uv
+nltk
