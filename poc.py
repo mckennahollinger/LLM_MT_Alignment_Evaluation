@@ -47,6 +47,6 @@ for line in range(len(source_tokens)):
     alignments.append(aligner.get_word_aligns(source_tokens[line], human_target_tokens[line]))
 
 # Print results of which words in each text have been aligned with each other
-for line, aligned in enumerate(alignments):
-    for pair in aligned["itermax"]:
-        print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {human_target_tokens[line][pair[1]]} ({pair[1]})")
+# for line, aligned in enumerate(alignments):
+#     for pair in aligned["itermax"]:
+#         print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {human_target_tokens[line][pair[1]]} ({pair[1]})")
