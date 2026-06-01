@@ -4,6 +4,8 @@ import os
 import sentencepiece
 from transformers import AutoTokenizer
 from simalign import SentenceAligner
+from nltk.translate import Alignment, alignment_error_rate
+from nltk.metrics import precision, recall
 
 # Load environmental variables
 load_dotenv()
@@ -62,7 +64,13 @@ for line in range(len(source_tokens)):
 for line in range(len(source_tokens)):
     llm_alignments.append(aligner.get_word_aligns(source_tokens[line], llm_target_tokens[line]))
 
+# Evaluate human vs LLM alignments based on error rate, precision and recall (uncomment each line for different metric)
+for line, human_aligned, llm_aligned in zip(enumerate(human_alignments), human_alignments, llm_alignments):
+    print(alignment_error_rate(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
+#    print(precision(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
+#    print(recall(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
+
 # Print results of which words in each text have been aligned with each other
-# for line, aligned in enumerate(alignments):
+# for line, aligned in enumerate(human_alignments):
 #     for pair in aligned["itermax"]:
 #         print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {human_target_tokens[line][pair[1]]} ({pair[1]})")
