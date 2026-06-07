@@ -33,7 +33,7 @@ human_input_ids = []
 with open(human_file_path, "r") as source:
     for line in source:
         # Add special tokens at beginning and end of each sentence for BERT logic, map tokens to IDs
-        human_input_ids.append(tokenizer.covert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]'])))
+        human_input_ids.append(torch.tensor(tokenizer.convert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]']))).unsqueeze(0))
 
 # LLM translation file path
 llm_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min_Auto.txt")
@@ -48,7 +48,7 @@ llm_input_ids = []
 with open(llm_file_path, "r") as source:
     for line in source:
         # Add special tokens at beginning and end of each sentence for BERT logic, map tokens to IDs
-        llm_input_ids.append(tokenizer.covert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]'])))
+        llm_input_ids.append(torch.tensor(tokenizer.convert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]']))).unsqueeze(0))
 
 # BLEU scores were 0 for each Ancient Chinese sentence, commenting out code used since not informative 
 
