@@ -12,10 +12,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv()
 
 # Load tokenizer for human and LLM translations
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 # Initialize BERT model for embedding retrieval
-model = BertModel.from_pretrained('bert-base-cased')
+model = BertModel.from_pretrained('bert-base-uncased')
 
 # Comment out tokenizer used for BLEU
 # tokenizer = WhitespaceTokenizer()
@@ -24,7 +24,7 @@ model = BertModel.from_pretrained('bert-base-cased')
 parent_file_path = os.getenv("CORPORA_PARENT_PATH")
 
 # Human translation file path
-human_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min_Human.txt")
+human_file_path = parent_file_path + ("/English/Ma_Liang_And_The_Magic_Brush_Human.txt")
 
 # Initialize lists to iterate over each line of human text
 human_text = []
@@ -39,7 +39,7 @@ with open(human_file_path, "r") as source:
         human_input_ids.append(torch.tensor(tokenizer.convert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]']))).unsqueeze(0))
 
 # LLM translation file path
-llm_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min_Auto.txt")
+llm_file_path = parent_file_path + ("/Mandarin_Chinese/Ma_Liang_And_The_Magic_Brush.txt")
 
 # Initialize lists to iterate over each line of llm text
 llm_text = []
@@ -53,21 +53,15 @@ with open(llm_file_path, "r") as source:
         # Add special tokens at beginning and end of each sentence for BERT logic, map tokens to IDs
         llm_input_ids.append(torch.tensor(tokenizer.convert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]']))).unsqueeze(0))
 
-# Initialize maps for human translation embeddings
-human_embeddings = []
-
-# Initialize maps for llm translation embeddings
-llm_embeddings = []
-
 # Retrieve BERT embeddings
 with torch.no_grad():
     for idx in range(0, len(human_input_ids)):
-        human_embeddings.append(model(human_input_ids[idx]).last_hidden_state[:, 0, :])
-        llm_embeddings.append(model(llm_input_ids[idx]).last_hidden_state[:, 0, :])
-        
+        human_embeddings = model(human_input_ids[idx]).last_hidden_state[:, 0, :]
+        llm_embeddings = model(llm_input_ids[idx]).last_hidden_state[:, 0, :]
+        similarity_score = cosine_similarity(human_embeddings, llm_embeddings)
+        print("Similarity Score:", similarity_score)
 
         
-
 # BLEU scores were 0 for each Ancient Chinese sentence, commenting out code used since not informative 
 
 # Initialize smoothing technique for sentence-level BLEU score by Boxing Chen and Collin Cherry (2014)
