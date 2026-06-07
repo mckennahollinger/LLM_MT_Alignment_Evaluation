@@ -54,18 +54,14 @@ with open(llm_file_path, "r") as source:
         llm_input_ids.append(torch.tensor(tokenizer.convert_tokens_to_ids((['[CLS]'] + tokenizer.tokenize(line) + ['[SEP]']))).unsqueeze(0))
 
 # Initialize maps for human translation embeddings
-human_outputs = []
 human_embeddings = []
 
 # Initialize maps for llm translation embeddings
-llm_outputs = []
 llm_embeddings = []
 
 # Retrieve BERT embeddings
 with torch.no_grad():
     for idx in range(0, len(human_input_ids)):
-        # human_outputs.append(model(human_input_ids[idx]))
-        # llm_outputs.append(model(llm_input_ids[idx]))
         human_embeddings.append(model(human_input_ids[idx]).last_hidden_state[:, 0, :])
         llm_embeddings.append(model(llm_input_ids[idx]).last_hidden_state[:, 0, :])
         
