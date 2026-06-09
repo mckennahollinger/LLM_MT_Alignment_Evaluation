@@ -4,17 +4,22 @@ import os
 import sentencepiece
 from transformers import AutoTokenizer
 from simalign import SentenceAligner
+from nltk.translate import Alignment, alignment_error_rate
+from nltk.metrics import precision, recall
 
 # Load environmental variables
 load_dotenv()
 
 # Load tokenizers for source and target texts
 source_tokenizer = AutoTokenizer.from_pretrained('xlm-roberta-base')
-target_tokenizer = AutoTokenizer.from_pretrained('xlm-roberta-base')
+human_target_tokenizer = AutoTokenizer.from_pretrained('xlm-roberta-base')
+llm_target_tokenizer = AutoTokenizer.from_pretrained('xlm-roberta-base')
 
 # Initialize lists to iterate over each tokenized line of text
 source_tokens = []
-target_tokens = []
+human_target_tokens = []
+llm_target_tokens = []
+
 
 # Store corpora parent path into accessible variable
 parent_file_path = os.getenv("CORPORA_PARENT_PATH")
@@ -31,22 +36,41 @@ with open(source_file_path, "r") as source:
     for line in source:
         source_tokens.append(source_tokenizer.tokenize(line))
 
-# Target corpora file path
-target_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min.txt")
+# Target human translation corpora file path
+human_target_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min_Human.txt")
 
-# Tokenize each line in target text
-with open(target_file_path, "r") as target:
+# Tokenize each line in human translation target text
+with open(human_target_file_path, "r") as target:
     for line in target:
-        target_tokens.append(target_tokenizer.tokenize(line))
+        human_target_tokens.append(human_target_tokenizer.tokenize(line))
 
-# Initialize list to append SimAlign Itermax algorithm results to 
-alignments = []
+# Target LLM translation corpora file path
+llm_target_file_path = parent_file_path + ("/English/Decade_Of_Sheng_Min_Auto.txt")
 
-# Align source and target lines of text 
+# Tokenize each line in LLM translation target text
+with open(llm_target_file_path, "r") as target:
+    for line in target:
+        llm_target_tokens.append(llm_target_tokenizer.tokenize(line))
+
+# Initialize lists to append SimAlign Itermax algorithm results to 
+human_alignments = []
+llm_alignments = []
+
+# Align source and human translation target lines of text 
 for line in range(len(source_tokens)):
-    alignments.append(aligner.get_word_aligns(source_tokens[line], target_tokens[line]))
+    human_alignments.append(aligner.get_word_aligns(source_tokens[line], human_target_tokens[line]))
+
+# Align source and human translation target lines of text 
+for line in range(len(source_tokens)):
+    llm_alignments.append(aligner.get_word_aligns(source_tokens[line], llm_target_tokens[line]))
+
+# Evaluate human vs LLM alignments based on error rate, precision and recall (uncomment each line for different metric)
+for line, human_aligned, llm_aligned in zip(enumerate(human_alignments), human_alignments, llm_alignments):
+    print(alignment_error_rate(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
+#    print(precision(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
+#    print(recall(Alignment(human_aligned["itermax"]), Alignment(llm_aligned["itermax"])))
 
 # Print results of which words in each text have been aligned with each other
-for line, aligned in enumerate(alignments):
-    for pair in aligned["itermax"]:
-        print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {target_tokens[line][pair[1]]} ({pair[1]})")
+# for line, aligned in enumerate(human_alignments):
+#     for pair in aligned["itermax"]:
+#         print(f"{source_tokens[line][pair[0]]} ({pair[0]}) === {human_target_tokens[line][pair[1]]} ({pair[1]})")
